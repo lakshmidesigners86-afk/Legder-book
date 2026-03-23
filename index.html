@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Lakshmi Designers — Order Ledger</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Georgia, serif; background: #f9f0f5; min-height: 100vh; padding: 1rem; color: #2E0B40; }
+.app { max-width: 700px; margin: 0 auto; }
+.header { text-align: center; padding: 1.5rem 1rem; margin-bottom: 1.5rem; background: linear-gradient(135deg, #7B2D5E, #2E0B40); border-radius: 16px; color: #fff; }
+.header h1 { font-size: 24px; font-weight: bold; letter-spacing: 2px; margin-bottom: 4px; }
+.header p { font-size: 12px; opacity: 0.7; letter-spacing: 3px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+.stat { background: #fff; border-radius: 12px; padding: 1rem; text-align: center; border: 0.5px solid #e8c8d8; }
+.stat-label { font-size: 11px; color: #995375; margin-bottom: 4px; letter-spacing: 1px; text-transform: uppercase; }
+.stat-val { font-size: 28px; font-weight: bold; color: #2E0B40; }
+.add-btn { width: 100%; padding: 12px; background: #fff; border: 1.5px dashed #7B2D5E; border-radius: 12px; font-size: 15px; cursor: pointer; color: #7B2D5E; margin-bottom: 1.5rem; font-family: Georgia, serif; }
+.add-btn:hover { background: #fce8f3; }
+.form-card { background: #fff; border: 0.5px solid #e8c8d8; border-radius: 16px; padding: 1.25rem; margin-bottom: 1.5rem; }
+.form-card h3 { font-size: 15px; margin-bottom: 1rem; color: #7B2D5E; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label { font-size: 11px; color: #995375; text-transform: uppercase; letter-spacing: 1px; }
+.form-group input, .form-group textarea { font-size: 14px; padding: 9px 12px; border-radius: 8px; border: 1px solid #e8c8d8; background: #fff9fc; color: #2E0B40; font-family: Georgia, serif; outline: none; }
+.form-group input:focus, .form-group textarea:focus { border-color: #7B2D5E; }
+.form-group textarea { resize: vertical; min-height: 65px; }
+.form-full { grid-column: 1 / -1; }
+.form-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.btn-primary { padding: 9px 20px; border-radius: 8px; border: none; background: #7B2D5E; color: #fff; font-size: 14px; cursor: pointer; font-family: Georgia, serif; }
+.btn-primary:hover { background: #5C1A6B; }
+.btn-cancel { padding: 9px 20px; border-radius: 8px; border: 1px solid #e8c8d8; background: transparent; color: #995375; font-size: 14px; cursor: pointer; font-family: Georgia, serif; }
+.orders-list { display: flex; flex-direction: column; gap: 12px; }
+.order-card { background: #fff; border: 0.5px solid #e8c8d8; border-radius: 16px; padding: 1.1rem 1.25rem; }
+.order-card.done { border-left: 4px solid #2EB87A; }
+.order-card.overdue { border-left: 4px solid #E24B4A; }
+.order-card.pending { border-left: 4px solid #EF9F27; }
+.order-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.order-name { font-size: 16px; font-weight: bold; color: #2E0B40; }
+.order-badge { font-size: 11px; padding: 3px 12px; border-radius: 20px; letter-spacing: 0.5px; }
+.badge-done { background: #E1F5EE; color: #0F6E56; }
+.badge-pending { background: #FAEEDA; color: #854F0B; }
+.badge-overdue { background: #FCEBEB; color: #A32D2D; }
+.order-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+.meta-item { font-size: 12px; color: #995375; }
+.meta-item span { color: #2E0B40; font-size: 13px; font-weight: bold; }
+.order-desc { font-size: 13px; color: #5C1A6B; margin-bottom: 10px; padding: 8px 10px; background: #fff9fc; border-radius: 8px; border: 0.5px solid #e8c8d8; }
+.order-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-tick { padding: 7px 14px; border-radius: 8px; border: 1px solid #2EB87A; background: transparent; color: #0F6E56; font-size: 12px; cursor: pointer; font-family: Georgia, serif; }
+.btn-tick:hover { background: #E1F5EE; }
+.btn-wa { padding: 7px 14px; border-radius: 8px; border: 1px solid #25D366; background: transparent; color: #128C7E; font-size: 12px; cursor: pointer; font-family: Georgia, serif; }
+.btn-wa:hover { background: #e8fef2; }
+.btn-del { padding: 7px 14px; border-radius: 8px; border: 1px solid #e8c8d8; background: transparent; color: #A32D2D; font-size: 12px; cursor: pointer; margin-left: auto; font-family: Georgia, serif; }
+.btn-del:hover { background: #FCEBEB; }
+.empty { text-align: center; padding: 3rem; color: #995375; font-size: 15px; background: #fff; border-radius: 16px; border: 0.5px dashed #e8c8d8; }
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #2E0B40; color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 14px; display: none; z-index: 999; font-family: Georgia, serif; }
+@media (max-width: 480px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .stat-val { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>Lakshmi Designers</h1>
+    <p>✦ ORDER LEDGER ✦</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Total</div><div class="stat-val" id="stat-total">0</div></div>
+    <div class="stat"><div class="stat-label">Pending</div><div class="stat-val" id="stat-pending">0</div></div>
+    <div class="stat"><div class="stat-label">Done</div><div class="stat-val" id="stat-done">0</div></div>
+  </div>
+
+  <button class="add-btn" onclick="toggleForm()">+ New Order</button>
+
+  <div class="form-card" id="form-card" style="display:none;">
+    <h3>New Order</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Customer Name</label><input id="f-name" placeholder="e.g. Priya Reddy"/></div>
+      <div class="form-group"><label>Phone Number</label><input id="f-phone" placeholder="e.g. 9876543210" type="tel"/></div>
+      <div class="form-group"><label>Order Date</label><input type="date" id="f-given"/></div>
+      <div class="form-group"><label>Delivery Date</label><input type="date" id="f-delivery"/></div>
+      <div class="form-group form-full"><label>Order Details</label><textarea id="f-desc" placeholder="e.g. Silk saree blouse, size 38, dark green colour"></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="toggleForm()">Cancel</button>
+      <button class="btn-primary" onclick="addOrder()">Save Order</button>
+    </div>
+  </div>
+
+  <div class="orders-list" id="orders-list"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let orders = JSON.parse(localStorage.getItem('ld-orders-v2') || '[]');
+
+function save() { localStorage.setItem('ld-orders-v2', JSON.stringify(orders)); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2500);
+}
+
+function toggleForm() {
+  const f = document.getElementById('form-card');
+  const visible = f.style.display !== 'none';
+  f.style.display = visible ? 'none' : 'block';
+  if (!visible) {
+    document.getElementById('f-given').value = new Date().toISOString().split('T')[0];
+  }
+}
+
+function addOrder() {
+  const name = document.getElementById('f-name').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const given = document.getElementById('f-given').value;
+  const delivery = document.getElementById('f-delivery').value;
+  const desc = document.getElementById('f-desc').value.trim();
+  if (!name || !phone || !delivery) { showToast('Name, phone & delivery date required!'); return; }
+  orders.unshift({ id: Date.now(), name, phone, given, delivery, desc, done: false });
+  save(); render(); toggleForm();
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-phone').value = '';
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-delivery').value = '';
+  showToast('Order saved!');
+}
+
+function markDone(id) {
+  const o = orders.find(x => x.id === id);
+  if (!o) return;
+  o.done = true;
+  save(); render();
+  const msg = encodeURIComponent("Hi " + o.name + "! Your order is ready at Lakshmi Designers. Please visit us to collect it. Thank you! \uD83C\uDF38");
+  const num = o.phone.replace(/\D/g, '');
+  window.open("https://wa.me/91" + num + "?text=" + msg, '_blank');
+  showToast('Order marked done! Opening WhatsApp...');
+}
+
+function sendWAAgain(id) {
+  const o = orders.find(x => x.id === id);
+  if (!o) return;
+  const msg = encodeURIComponent("Hi " + o.name + "! Your order is ready at Lakshmi Designers. Please visit us to collect it. Thank you! \uD83C\uDF38");
+  const num = o.phone.replace(/\D/g, '');
+  window.open("https://wa.me/91" + num + "?text=" + msg, '_blank');
+}
+
+function deleteOrder(id) {
+  if (!confirm('Delete this order?')) return;
+  orders = orders.filter(x => x.id !== id);
+  save(); render();
+  showToast('Order deleted');
+}
+
+function getStatus(o) {
+  if (o.done) return 'done';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const del = new Date(o.delivery);
+  return del < today ? 'overdue' : 'pending';
+}
+
+function fmt(d) {
+  if (!d) return '—';
+  const [y, m, day] = d.split('-');
+  return day + '/' + m + '/' + y;
+}
+
+function render() {
+  const list = document.getElementById('orders-list');
+  document.getElementById('stat-total').textContent = orders.length;
+  document.getElementById('stat-done').textContent = orders.filter(o => o.done).length;
+  document.getElementById('stat-pending').textContent = orders.filter(o => !o.done).length;
+
+  if (!orders.length) {
+    list.innerHTML = '<div class="empty">No orders yet.<br>Click "+ New Order" to add your first order.</div>';
+    return;
+  }
+
+  list.innerHTML = orders.map(o => {
+    const status = getStatus(o);
+    const badgeClass = status === 'done' ? 'badge-done' : status === 'overdue' ? 'badge-overdue' : 'badge-pending';
+    const badgeText = status === 'done' ? 'Completed' : status === 'overdue' ? 'Overdue' : 'Pending';
+    return '<div class="order-card ' + status + '">' +
+      '<div class="order-top">' +
+        '<div class="order-name">' + o.name + '</div>' +
+        '<span class="order-badge ' + badgeClass + '">' + badgeText + '</span>' +
+      '</div>' +
+      '<div class="order-meta">' +
+        '<div class="meta-item">Phone: <span>' + o.phone + '</span></div>' +
+        '<div class="meta-item">Given: <span>' + fmt(o.given) + '</span></div>' +
+        '<div class="meta-item">Delivery: <span>' + fmt(o.delivery) + '</span></div>' +
+      '</div>' +
+      (o.desc ? '<div class="order-desc">' + o.desc + '</div>' : '') +
+      '<div class="order-actions">' +
+        (!o.done
+          ? '<button class="btn-tick" onclick="markDone(' + o.id + ')">✓ Mark Ready + WhatsApp</button>'
+          : '<button class="btn-wa" onclick="sendWAAgain(' + o.id + ')">WhatsApp again</button>') +
+        '<button class="btn-del" onclick="deleteOrder(' + o.id + ')">Delete</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+render();
+</script>
+</body>
+</html>
